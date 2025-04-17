@@ -1,0 +1,46 @@
+.topBar {
+  margin: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.search {
+  flex: 1;
+  background-color: #f1f1f1;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.search input {
+  flex: 1;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  font-size: 18px;
+}
+
+.filters {
+  display: flex;
+  gap: 15px;
+}
+
+.filter-dropdown {
+  flex: 1; /* Make dropdowns share space equally */
+  min-width: 0; /* Allow shrinking past default width */
+  width: 100%; /* Fill available space */
+  justify-items: center;
+}
+
+/* Improve dropdown appearance */
+.filter-dropdown select {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  border: none;
+  background-color: #f1f1f1;
+  font-size: 16px;
+}

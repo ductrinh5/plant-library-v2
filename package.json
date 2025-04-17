@@ -1,5 +1,5 @@
 {
-  "name": "pinterest-starter",
+  "name": "plant-library-v2",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,8 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/drei": "^10.0.5",
+    "@react-three/fiber": "^9.1.0",
+    "gsap": "^3.12.7",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-router": "^7.4.1",
+    "three": "^0.175.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
