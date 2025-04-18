@@ -6,22 +6,41 @@ import {
   Environment,
   OrbitControls,
   PerspectiveCamera,
+  useEnvironment,
+  useHelper,
 } from "@react-three/drei";
 import { useRef, useEffect, useState } from "react";
 import { useParams } from "react-router";
+import { SpotLightHelper } from "three";
+import { EffectComposer, DepthOfField } from "@react-three/postprocessing";
 
-function Light() {
-  const light = useRef();
-  // useHelper(light, SpotLightHelper, "orange");
+// function Light() {
+//   const light1 = useRef();
+//   useHelper(light1, SpotLightHelper, "orange");
+//   return (
+//     <spotLight
+//       ref={light1}
+//       intensity={80}
+//       color={0xffea00}
+//       position={[10, 15, 0]}
+//     />
+//   );
+// }
+
+const Scene = ({ plant }) => {
+  const envMap = useEnvironment({
+    files: "/background/dry_orchard_meadow_1k.hdr",
+  });
+
   return (
-    <spotLight
-      ref={light}
-      intensity={80}
-      color={0xffea00}
-      position={[10, 15, 0]}
-    />
+    <>
+      <AnimatedCamera />
+      <Environment map={envMap} background />
+      <OrbitControls />
+      <Model modelPath={plant.model} />
+    </>
   );
-}
+};
 
 function Model({ modelPath }) {
   if (!modelPath) return null; // Tránh lỗi khi chưa có dữ liệu
@@ -47,7 +66,6 @@ function AnimatedCamera() {
         if (Math.abs(camera.position.z - targetZ) < 0.01) {
           camera.position.z = targetZ;
           setDone(true);
-          setAnimationDone(true);
           return; // Stop animation
         }
 
@@ -85,12 +103,15 @@ const PostPage = () => {
       <div className="postContainer">
         <div className="postImg">
           <Canvas>
-            <AnimatedCamera />
-            <Environment preset="dawn" />
-            <OrbitControls />
-            <ambientLight intensity={2} />
-            <Light />
-            <Model modelPath={plant.model} />
+            <Scene plant={plant} /> {/* Render the scene inside Canvas */}
+            <EffectComposer>
+              <DepthOfField
+                focusDistance={0} // Focus at camera origin
+                focalLength={2} // Blur strength (smaller = stronger blur)
+                bokehScale={80} // Blur quality/radius
+                // height={460}
+              />
+            </EffectComposer>
           </Canvas>
         </div>
         <div className="postDetails">

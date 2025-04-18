@@ -6,27 +6,32 @@ import {
   OrbitControls,
   Environment,
   PerspectiveCamera,
+  useEnvironment,
 } from "@react-three/drei";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { useLoader } from "@react-three/fiber";
+import { EffectComposer, DepthOfField } from "@react-three/postprocessing";
 
 const ModelPreview = ({ fileUrl }) => {
   const gltf = useLoader(GLTFLoader, fileUrl);
   return <primitive object={gltf.scene} position={[0, -0.5, 0]} />;
 };
 
-function Light() {
-  const light = useRef();
-  // useHelper(light, SpotLightHelper, "orange");
+const Scene = ({ fileUrl }) => {
+  const envMap = useEnvironment({
+    files: "/background/dry_orchard_meadow_1k.hdr",
+  });
+
   return (
-    <spotLight
-      ref={light}
-      intensity={80}
-      color={0xffea00}
-      position={[10, 15, 0]}
-    />
+    <>
+      <Environment map={envMap} background />
+      <PerspectiveCamera makeDefault position={[0, 2, 4.6]} fov={60} />
+      <OrbitControls />
+      <ambientLight intensity={2} />
+      <ModelPreview fileUrl={fileUrl} />
+    </>
   );
-}
+};
 
 const CreatePage = () => {
   const [formData, setFormData] = useState({
@@ -43,6 +48,7 @@ const CreatePage = () => {
   const [file, setFile] = useState(null);
   const [fileUrl, setFileUrl] = useState(null);
   const [toast, setToast] = useState({ message: "", type: "" });
+  const canvasRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -62,28 +68,45 @@ const CreatePage = () => {
     try {
       if (!file) return alert("Please upload a .glb file");
       const filename = file.name;
-      const modelPath = `/models/${filename}`;
+      const modelPath = `http://localhost:3000/models/${filename}`;
+      const thumbnailPath = `http://localhost:3000/thumbnails/${filename}`;
+
+      const canvas = canvasRef.current?.querySelector("canvas");
+
+      const dataURL = canvas.toDataURL("image/png");
 
       // Upload model file
       const data = new FormData();
       data.append("file", file);
       data.append("filename", filename);
 
-      const uploadRes = await fetch("http://localhost:3000/upload", {
-        method: "POST",
-        body: data,
-      });
+      const [uploadRes, thumbnailRes, saveRes] = await Promise.all([
+        fetch("http://localhost:3000/upload", {
+          method: "POST",
+          body: data,
+        }),
+        fetch("http://localhost:3000/api/save-thumbnail", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dataUrl: dataURL,
+            filename: `${filename.replace(".glb", "")}.png`,
+          }),
+        }),
+        fetch("http://localhost:3000/api", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...formData,
+            model: modelPath,
+            preview: `${thumbnailPath.replace(".glb", "")}.png`,
+          }),
+        }),
+      ]);
 
-      if (!uploadRes.ok) throw new Error("File upload failed");
-
-      // Save plant data
-      const saveRes = await fetch("http://localhost:3000/api", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, model: modelPath }),
-      });
-
-      if (!saveRes.ok) throw new Error("Failed to save plant data");
+      if (!uploadRes.ok || !thumbnailRes.ok || !saveRes.ok) {
+        throw new Error("Something failed in submission.");
+      }
 
       setToast({ message: "✅ Publish thành công!", type: "success" });
 
@@ -131,18 +154,21 @@ const CreatePage = () => {
             </>
           )}
           {fileUrl && (
-            <div className="modelPreview">
-              <Canvas camera={{ position: [0, 1, 3], fov: 45 }}>
-                <PerspectiveCamera
-                  makeDefault
-                  position={[0, 2, 4.6]}
-                  fov={60}
-                />
-                <OrbitControls />
-                <ambientLight intensity={2} />
-                <Light />
-                <Environment preset="dawn" />
-                <ModelPreview fileUrl={fileUrl} />
+            <div className="modelPreview" ref={canvasRef}>
+              <Canvas
+                camera={{ position: [0, 1, 3], fov: 45 }}
+                gl={{ preserveDrawingBuffer: true }}
+              >
+                <Scene fileUrl={fileUrl} />{" "}
+                {/* Render the scene inside Canvas */}
+                <EffectComposer>
+                  <DepthOfField
+                    focusDistance={0} // Focus at camera origin
+                    focalLength={2} // Blur strength (smaller = stronger blur)
+                    bokehScale={80} // Blur quality/radius
+                    // height={460}
+                  />
+                </EffectComposer>
               </Canvas>
             </div>
           )}

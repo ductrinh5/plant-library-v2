@@ -26,7 +26,7 @@ const AuthPage = () => {
 
     const data = await res.json();
     if (res.ok) {
-      localStorage.setItem("auth", "true"); // Mark as logged in
+      localStorage.setItem("token", "your_hardcoded_token"); // Mark as logged in
       navigate("/"); // Redirect to home or admin
     } else {
       setError(data.message || "Login failed");

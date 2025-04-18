@@ -1,28 +1,31 @@
 import "./leftBar.css";
 
 const LeftBar = () => {
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // or sessionStorage.removeItem if you're using that
+    window.location.href = "/auth"; // redirect to login page
+  };
+
   return (
     <div className="leftBar">
       <div className="menuIcons">
         <a href="/" className="menuIcon">
-          <img src="/general/logo.png" alt="" />
+          <img src="/general/plant_lib.svg" alt="" />
         </a>
         <a href="/" className="menuIcon">
           <img src="/general/home.svg" alt="" />
         </a>
-        <a href="/" className="menuIcon">
+        <a href="/create" className="menuIcon">
           <img src="/general/create.svg" alt="" />
         </a>
-        <a href="/" className="menuIcon">
-          <img src="/general/updates.svg" alt="" />
-        </a>
-        <a href="/" className="menuIcon">
-          <img src="/general/messages.svg" alt="" />
-        </a>
       </div>
-      <a href="/" className="menuIcon">
-        <img src="/general/settings.svg" alt="" />
-      </a>
+      <div
+        className="menuIcon"
+        onClick={handleLogout}
+        style={{ cursor: "pointer" }}
+      >
+        <img src="/general/settings.svg" alt="Logout" />
+      </div>
     </div>
   );
 };

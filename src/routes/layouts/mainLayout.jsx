@@ -4,11 +4,11 @@ import TopBar from "../../components/topBar/topBar";
 import "./mainLayout.css";
 
 const MainLayout = () => {
-  const isAuthenticated = localStorage.getItem("auth") === "true";
+  const isLoggedIn = !!localStorage.getItem("token");
 
   return (
     <div className="app">
-      {isAuthenticated && <LeftBar />}
+      {isLoggedIn && <LeftBar />}
       <div className="content">
         <TopBar />
         <Outlet />
