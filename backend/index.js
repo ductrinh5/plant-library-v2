@@ -144,7 +144,7 @@ app.post("/api", (req, res) => {
 });
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+
 
 app.delete("/api", (req, res) => {
   res.set("content-type", "application/json");
@@ -162,16 +162,13 @@ app.delete("/api", (req, res) => {
       }
 
       // Extract filenames from URLs
-      const modelPath = row.plant_preview.replace("http://localhost:3000/", "");
-      const thumbnailPath = row.plant_model_3D.replace(
-        "http://localhost:3000/",
-        ""
-      );
+      const modelPath = row.plant_model_3D.split('/').pop(); // Get just the filename
+      const thumbnailPath = row.plant_preview.split('/').pop(); // Get just the filename
 
       // Delete files first
       const filesToDelete = [
-        join(__dirname, "public", modelPath),
-        join(__dirname, "public", thumbnailPath),
+        path.join(process.cwd(), "public", "models", modelPath),
+        path.join(process.cwd(), "public", "thumbnails", thumbnailPath),
       ];
 
       let filesDeleted = 0;
