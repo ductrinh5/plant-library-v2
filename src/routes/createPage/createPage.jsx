@@ -38,8 +38,8 @@ const CreatePage = () => {
     name: "",
     family: "",
     description: "",
-    application: "0",
-    distribution: "",
+    application: [],
+    distribution: [],
     growth: "",
     history: "",
     value: "",
@@ -53,7 +53,18 @@ const CreatePage = () => {
   const navigate = useNavigate();
 
   const handleInput = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value, type } = e.target;
+
+    if (e.target.multiple) {
+      // For multiple select elements
+      const selectedValues = Array.from(e.target.selectedOptions).map(
+        (option) => option.value
+      );
+      setFormData((prev) => ({ ...prev, [name]: selectedValues }));
+    } else {
+      // For regular inputs/selects
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleFileChange = (e) => {
@@ -148,9 +159,7 @@ const CreatePage = () => {
                 hidden
                 onChange={handleFileChange}
               />
-              <div className="uploadInfo">
-                We recommend using 3D files less than 3MB
-              </div>
+              <div className="uploadInfo">Nên sử dụng file 3D nhỏ hơn 20MB</div>
             </>
           )}
           {fileUrl && (
@@ -176,10 +185,10 @@ const CreatePage = () => {
 
         <form className="createForm">
           {[
-            ["Name", "name"],
-            ["Family", "family"],
+            ["Name", "name", "input"],
+            ["Family", "family", "input"],
             ["Description", "description", "textarea"],
-            ["Distribution", "distribution", "textarea"],
+            ["Distribution", "distribution", "select"],
             ["Growth", "growth", "textarea"],
             ["History", "history", "textarea"],
             ["Value", "value", "textarea"],
@@ -188,6 +197,15 @@ const CreatePage = () => {
               <label>{label}</label>
               {type === "textarea" ? (
                 <textarea rows={4} name={key} onChange={handleInput} />
+              ) : type === "select" ? (
+                <select multiple name={key} onChange={handleInput}>
+                  <option value="Thế giới">Thế giới</option>
+                  <option value="Châu Á">Châu Á</option>
+                  <option value="Châu Âu">Châu Âu</option>
+                  <option value="Châu Phi">Châu Phi</option>
+                  <option value="Châu Mỹ">Châu Mỹ</option>
+                  <option value="Châu Úc">Châu Úc</option>
+                </select>
               ) : (
                 <input type="text" name={key} onChange={handleInput} />
               )}
@@ -196,10 +214,9 @@ const CreatePage = () => {
 
           <div className="createFormItem">
             <label>Application</label>
-            <select name="application" onChange={handleInput}>
-              <option value="0"></option>
-              <option value="1">Thực phẩm</option>
-              <option value="2">Đồ uống</option>
+            <select multiple name="application" onChange={handleInput}>
+              <option value="Thực phẩm">Thực phẩm</option>
+              <option value="Đồ uống">Đồ uống</option>
             </select>
           </div>
         </form>

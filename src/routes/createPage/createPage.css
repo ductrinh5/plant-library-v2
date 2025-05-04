@@ -106,9 +106,9 @@
   align-items: center;
   justify-content: center;
   border-radius: 32px;
-  border: 2px dashed #dddddd;
+  border: 3px dashed #dddddd;
   width: 375px;
-  height: 574px;
+  height: 375px;
   padding: 16px;
   position: relative;
   overflow: hidden;
